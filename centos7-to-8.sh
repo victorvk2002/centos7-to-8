@@ -127,10 +127,10 @@ EOF
 fi
 
 
-# stage <LEVEL> <MESSAGE>
-stage() {
+# msg <LEVEL> <MESSAGE>
+msg() {
   RESET=$(tput sgr0)
-  BOLD=$(tput bold)
+  WIDTH=100
 
   COLOR_INFO=$(tput setaf 6)   # cyan
   COLOR_WARN=$(tput setaf 3)   # yellow
@@ -138,29 +138,31 @@ stage() {
   COLOR_SUCCESS=$(tput setaf 2)   # green
   COLOR_DEBUG=$(tput setaf 5)   # magenta
 
-  local level=$1
-  shift
+  if [[ $2 != "" ]]
+  then
+    local level=$1
+    shift
+  fi
   local msg="$*"
 
   # Выбираем цвет по уровню
   local color=$COLOR_INFO  # по умолчанию
   case "$level" in
-    info|i)    color=$COLOR_INFO    ;;
-    warn|w)    color=$COLOR_WARN    ;;
-    error|e)   color=$COLOR_ERROR   ;;
-    success|s) color=$COLOR_SUCCESS ;;
-    debug|d)   color=$COLOR_DEBUG   ;;
-    *)         color=$COLOR_INFO    ;;
+    info|i)    color=$COLOR_INFO;level=info       ;;
+    warn|w)    color=$COLOR_WARN;level=warn       ;;
+    error|e)   color=$COLOR_ERROR;level=error     ;;
+    success|s) color=$COLOR_SUCCESS;level=success ;;
+    debug|d)   color=$COLOR_DEBUG;level=debug     ;;
+    *)         color=$COLOR_INFO;level=info       ;;
   esac
 
   local ts=$(date '+%Y-%m-%d %H:%M:%S')
   local prefix="[${ts}] ${level^^}"
-  line
-  printf "%b%-30s%b %s%b\n" "$color" "$prefix" "$RESET" "$msg" "$RESET"
-  line
-}
 
-# Если нужно «выделить» разделы – можно использовать простую линию:
-line() {
-  printf '%s\n' "$(printf '%0.s-' {1..40})"
+  body="| $prefix $msg"
+  len=$(($WIDTH - ${#body}))
+  closer="$(printf '%0.s ' $(seq $len))|"
+  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+"
+  printf "%b%-30s%b %s%b\n" "$color" "$body" "$color" "$closer" "$RESET"
+  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+"
 }
