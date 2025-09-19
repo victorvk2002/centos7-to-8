@@ -20,36 +20,20 @@ stage() {
 
 stage 'STAGE 1'
 
-
-stage 'замена резозитариев'
-sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
-sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
-sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
-sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-
-echo "sslverify=false" >> /etc/yum.conf
-
-stage 'обновление пакетов'
-yum upgrade -y
-
-stage 'установка epel через метапакет'
-yum install -y epel-release
-
-stage 'установка дополнительных пакетов'
-yum install -y yum-utils rpmconf mc
-
-stage 'Локаль'
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export PYTHONIOENCODING=UTF-8
-locale
-
-
-exit 1
-
 if [ ! -f "STAGE1_DONE.flag" ]
 then
+  stage 'Локаль'
+  export LANG=en_US.UTF-8
+  export LC_ALL=en_US.UTF-8
+  export PYTHONIOENCODING=UTF-8
+  localedef -i en_US -f ISO-8859-1 en_US
+  localedef -i en_US -f UTF-8 en_US.UTF-8
+  locale -a | grep -E "(en_US|ru_RU)"
+  echo 'export LANG=en_US.UTF-8' >> /etc/profile
+  echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile
+  source /etc/profile
+  locale
+
   stage 'замена резозитариев'
   sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
   sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
@@ -68,18 +52,18 @@ then
   stage 'установка дополнительных пакетов'
   yum install -y yum-utils rpmconf mc
 
-  stage 'Локаль'
-  export LANG=en_US.UTF-8
-  export LC_ALL=en_US.UTF-8
-  export PYTHONIOENCODING=UTF-8
-  locale
-
-  stage ''
+  stage 'очистка старых пакетов'
   rpmconf -a
-  package-cleanup --leaves
-  package-cleanup --orphans
 
-  
+  for pkg in $(package-cleanup --leaves -q)
+  do
+    yum remove -y $pkg
+  done
+
+  for pkg in $(package-cleanup --orphans -q)
+  do
+    yum remove -y $pkg
+  done
 
   yum install -y dnf
   dnf -y remove yum yum-metadata-parser
