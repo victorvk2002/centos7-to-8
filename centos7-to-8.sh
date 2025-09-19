@@ -43,19 +43,7 @@ msg() {
 
 if [ ! -f "STAGE1_DONE.flag" ]
 then
-  msg 'Локаль'
-  export LANG=en_US.UTF-8
-  export LC_ALL=en_US.UTF-8
-  export PYTHONIOENCODING=UTF-8
-  localedef -i en_US -f ISO-8859-1 en_US
-  localedef -i en_US -f UTF-8 en_US.UTF-8
-  locale -a | grep -E "(en_US|ru_RU)"
-  echo 'export LANG=en_US.UTF-8' >> /etc/profile
-  echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile
-  source /etc/profile
-  locale
-
-  msg 'замена резозитариев'
+  msg 'centos7: замена резозитариев'
   sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
   sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
   sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
@@ -64,16 +52,16 @@ then
 
   echo "sslverify=false" >> /etc/yum.conf
 
-  msg 'обновление пакетов'
+  msg ' centos7: обновление пакетов'
   yum upgrade -y
   
-  msg 'установка epel через метапакет'
+  msg 'centos7: установка epel через метапакет'
   yum install -y epel-release
 
-  msg 'установка дополнительных пакетов'
+  msg 'centos7: установка дополнительных пакетов'
   yum install -y yum-utils rpmconf mc nano
 
-  msg 'очистка старых пакетов'
+  msg 'centos7: очистка старых пакетов'
   rpmconf -a
 
   for pkg in $(package-cleanup --leaves -q)
@@ -86,7 +74,7 @@ then
     yum remove -y $pkg
   done
 
-  msg 'замена yam на dnf'
+  msg 'centos7: замена yam на dnf'
   yum install -y dnf
   dnf -y remove yum yum-metadata-parser
   rm -Rf /etc/yum
