@@ -10,17 +10,29 @@ if [ ! -f "PHASE1_DONE.flag" ]; then
 
   echo "sslverify=false" >> /etc/yum.conf
 
-  yum update -y
   yum upgrade -y
+  ----
 
+
+  теперь у нас работает пакетный менеджер
+
+  ----
+  https://www.joe0.com/2020/04/09/how-to-easily-upgrade-from-centos-7-to-centos-8-1-x/
+  ----
+
+  yum upgrade -y
+  yum update -y
+
+  # epel
+  # через метапакет
   yum install -y epel-release
-  yum install -y yum-utils rpmconf kernel mc
+
+  yum install -y yum-utils rpmconf mc
 
   export LANG=en_US.UTF-8
   export LC_ALL=en_US.UTF-8
   export PYTHONIOENCODING=UTF-8
   locale
-
 
   rpmconf -a
   package-cleanup --leaves
@@ -36,8 +48,9 @@ if [ ! -f "PHASE1_DONE.flag" ]; then
   systemctl start NetworkManager
   systemctl status NetworkManager
 
+
   cat /etc/os-release
-  rpm -q kernel
+  uname -a
 
   touch PHASE1_DONE.flag
 fi
@@ -51,56 +64,46 @@ if [ ! -f "PHASE2_DONE.flag" ]; then
   dnf -y upgrade https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
   # Repo
-  cat > /etc/yum.repos.d/CentOS-Base.repo << EOF
-# CentOS-Base.repo for CentOS 8 (EOL - using vault repositories)
-#
-# Note: After CentOS 8 EOL (Dec 2021), mirrorlist URLs are no longer available.
-# Using vault.centos.org for archived repositories.
-
-[baseos]
-name=CentOS-8 - BaseOS
-baseurl=http://vault.centos.org/8.5.2111/BaseOS/$basearch/os/
-gpgcheck=1
+  cat > /etc/yum.repos.d/centos-vault.repo << 'EOF'
+[BaseOS]
+name=CentOS-8 - Base
+baseurl=http://vault.centos.org/centos/8/BaseOS/x86_64/os/
 enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=0
 
-[appstream]
+[AppStream]
 name=CentOS-8 - AppStream
-baseurl=http://vault.centos.org/8.5.2111/AppStream/$basearch/os/
-gpgcheck=1
+baseurl=http://vault.centos.org/centos/8/AppStream/x86_64/os/
 enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=0
 
 [extras]
 name=CentOS-8 - Extras
-baseurl=http://vault.centos.org/8.5.2111/extras/$basearch/os/
-gpgcheck=1
+baseurl=http://vault.centos.org/centos/8/extras/x86_64/os/
 enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-
-[powertools]
-name=CentOS-8 - PowerTools
-baseurl=http://vault.centos.org/8.5.2111/PowerTools/$basearch/os/
-gpgcheck=1
-enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-
-[centosplus]
-name=CentOS-8 - Plus
-baseurl=http://vault.centos.org/8.5.2111/centosplus/$basearch/os/
-gpgcheck=1
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+gpgcheck=0
 EOF
 
   dnf clean all
   rm -rf /var/cache/dnf/*
   rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+
+  dnf clean all
   dnf makecache
+  dnf update --best --allowerasing
   dnf repolist
 
-  dnf update -y
   dnf upgrade -y
+
+
+  rpm -e `rpm -q kernel`
+  rpm -e --nodeps sysvinit-tools
+
+  dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
+  dnf -y install kernel-core
+  dnf -y groupupdate "Core" "Minimal Install"
+
+  cat /etc/os-release
 
   touch PHASE2_DONE.flag
 fi
