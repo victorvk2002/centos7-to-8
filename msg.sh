@@ -37,7 +37,7 @@ msg() {
   closer="$(printf '%0.s ' $(seq $len))|"
   printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+"
   printf "%b%-30s%b %s%b\n" "$color" "$body" "$color" "$closer" "$RESET"
-  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+"
+  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+" "$RESET"
 }
 
 
