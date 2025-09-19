@@ -1,7 +1,56 @@
 #!/bin/bash
 
-if [ ! -f "PHASE1_DONE.flag" ]; then
+stage() {
+    local msg="$1"
+    local width=60
+    local border="─"
 
+    # цветовые коды (можно убрать, если не нужно)
+    local COLOR_BLUE="\e[34m"
+    local COLOR_RESET="\e[0m"
+    local COLOR_BOLD="\e[1m"
+
+    # рамка сверху
+    printf "\n${COLOR_BLUE}┌%*s┐${COLOR_RESET}\n" $width | tr ' ' "$border"
+    # текст по центру
+    printf "${COLOR_BLUE}│${COLOR_RESET} ${COLOR_BOLD}%-*s${COLOR_RESET}${COLOR_BLUE}│${COLOR_RESET}\n" $((width-2)) "$msg"
+    # рамка снизу
+    printf "${COLOR_BLUE}└%*s┘${COLOR_RESET}\n\n" $width | tr ' ' "$border"
+}
+
+stage 'STAGE 1'
+
+
+stage 'замена резозитариев'
+sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
+sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+echo "sslverify=false" >> /etc/yum.conf
+
+stage 'обновление пакетов'
+yum upgrade -y
+
+stage 'установка epel через метапакет'
+yum install -y epel-release
+
+stage 'установка дополнительных пакетов'
+yum install -y yum-utils rpmconf mc
+
+stage 'Локаль'
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export PYTHONIOENCODING=UTF-8
+locale
+
+
+exit 1
+
+if [ ! -f "STAGE1_DONE.flag" ]
+then
+  stage 'замена резозитариев'
   sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
   sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
   sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
@@ -10,33 +59,27 @@ if [ ! -f "PHASE1_DONE.flag" ]; then
 
   echo "sslverify=false" >> /etc/yum.conf
 
+  stage 'обновление пакетов'
   yum upgrade -y
-  ----
-
-
-  теперь у нас работает пакетный менеджер
-
-  ----
-  https://www.joe0.com/2020/04/09/how-to-easily-upgrade-from-centos-7-to-centos-8-1-x/
-  ----
-
-  yum upgrade -y
-  yum update -y
-
-  # epel
-  # через метапакет
+  
+  stage 'установка epel через метапакет'
   yum install -y epel-release
 
+  stage 'установка дополнительных пакетов'
   yum install -y yum-utils rpmconf mc
 
+  stage 'Локаль'
   export LANG=en_US.UTF-8
   export LC_ALL=en_US.UTF-8
   export PYTHONIOENCODING=UTF-8
   locale
 
+  stage ''
   rpmconf -a
   package-cleanup --leaves
   package-cleanup --orphans
+
+  
 
   yum install -y dnf
   dnf -y remove yum yum-metadata-parser
@@ -48,14 +91,16 @@ if [ ! -f "PHASE1_DONE.flag" ]; then
   systemctl start NetworkManager
   systemctl status NetworkManager
 
-
   cat /etc/os-release
   uname -a
 
-  touch PHASE1_DONE.flag
+  touch STAGE1_DONE.flag
 fi
 
-if [ ! -f "PHASE2_DONE.flag" ]; then
+stage 'STAGE 2'
+
+if [ ! -f "STAGE2_DONE.flag" ]
+then
   dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-release-8.5-1.2111.el8.noarch.rpm
   dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-3.el8.noarch.rpm
   dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-repos-8-3.el8.noarch.rpm
@@ -105,5 +150,5 @@ EOF
 
   cat /etc/os-release
 
-  touch PHASE2_DONE.flag
+  touch STAGE2_DONE.flag
 fi
