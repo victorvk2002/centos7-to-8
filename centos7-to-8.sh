@@ -1,99 +1,11 @@
 #!/bin/bash
 
-# msg <LEVEL> <MESSAGE>
-msg() {
-  RESET=$(tput sgr0)
-  WIDTH=100
-
-  COLOR_INFO=$(tput setaf 6)   # cyan
-  COLOR_WARN=$(tput setaf 3)   # yellow
-  COLOR_ERROR=$(tput setaf 1)   # red
-  COLOR_SUCCESS=$(tput setaf 2)   # green
-  COLOR_DEBUG=$(tput setaf 5)   # magenta
-
-  if [[ $2 != "" ]]
-  then
-    local level=$1
-    shift
-  fi
-  local msg="$*"
-
-  # Выбираем цвет по уровню
-  local color=$COLOR_INFO  # по умолчанию
-  case "$level" in
-    info|i)    color=$COLOR_INFO;level=info       ;;
-    warn|w)    color=$COLOR_WARN;level=warn       ;;
-    error|e)   color=$COLOR_ERROR;level=error     ;;
-    success|s) color=$COLOR_SUCCESS;level=success ;;
-    debug|d)   color=$COLOR_DEBUG;level=debug     ;;
-    *)         color=$COLOR_INFO;level=info       ;;
-  esac
-
-  local ts=$(date '+%Y-%m-%d %H:%M:%S')
-  local prefix="[${ts}] ${level^^}"
-
-  body="| $prefix $msg"
-  len=$(($WIDTH - ${#body}))
-  closer="$(printf '%0.s ' $(seq $len))|"
-  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+"
-  printf "%b%-30s%b %s%b\n" "$color" "$body" "$color" "$closer" "$RESET"
-  printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+" "$RESET"
-}
-
-
-if [ ! -f "STAGE1_DONE.flag" ]
-then
-  msg 'centos7: замена резозитариев'
-  sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
-  sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
-  sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
-  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-
-  echo "sslverify=false" >> /etc/yum.conf
-
-  msg ' centos7: обновление пакетов'
-  yum upgrade -y
-  
-  msg 'centos7: установка epel через метапакет'
-  yum install -y epel-release
-
-  msg 'centos7: установка дополнительных пакетов'
-  yum install -y yum-utils rpmconf mc nano
-
-  msg 'centos7: очистка старых пакетов'
-  rpmconf -a
-
-  for pkg in $(package-cleanup --leaves -q)
-  do
-    yum remove -y $pkg
-  done
-
-  for pkg in $(package-cleanup --orphans -q)
-  do
-    yum remove -y $pkg
-  done
-
-  msg 'centos7: замена yam на dnf'
-  yum install -y dnf
-  dnf -y remove yum yum-metadata-parser
-  rm -Rf /etc/yum
-  dnf upgrade -y
-
-  cat /etc/os-release
-  uname -a
-
-  touch STAGE1_DONE.flag
-fi
+source msg.sh
 
 if [ ! -f "STAGE2_DONE.flag" ]
 then
-  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-release-8.5-1.2111.el8.noarch.rpm
-  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-3.el8.noarch.rpm
-  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-repos-8-3.el8.noarch.rpm
-  # # epel
-  # dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-  # dnf -y upgrade https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+  dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/{centos-linux-release-8.5-1.2111.el8.noarch.rpm,centos-gpg-keys-8-3.el8.noarch.rpm,centos-linux-repos-8-3.el8.noarch.rpm}
+  dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
   rm -rf /etc/yum.repos.d/CentOS*
   rm -rf /etc/yum.repos.d/epel*
@@ -119,12 +31,30 @@ enabled=1
 gpgcheck=0
 EOF
 
-  dnf clean all
-  rm -rf /var/cache/dnf/*
-  dnf makecache
-  dnf update -y --best --allowerasing
   dnf repolist
-  dnf upgrade -y 1>>error.log 2>>error.log
+  dnf clean all
+  dnf makecache
+  dnf install -y https://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-core-4.18.0-348.7.1.el8_5.x86_64.rpm
+  dnf install -y http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-4.18.0-348.7.1.el8_5.x86_64.rpm
+  dnf install -y http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-tools-4.18.0-348.7.1.el8_5.x86_64.rpm
+  dnf install -y https://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-modules-4.18.0-348.7.1.el8_5.x86_64.rpm
+
+  #dnf install -y --allowerasing kernel-core kernel-modules
+
+
+  rpm -qa | grep kernel
+  dracut --kver 4.18.0-348.7.1.el8_5.x86_64 --force
+  #dracut --regenerate-all --force
+  grub2-mkconfig -o /boot/grub2/grub.cfg
+
+
+
+  rpm -e --nodeps kernel-3.*
+  rpm -qa | grep kernel
+  dnf distro-sync -y
+
+
+  dnf upgrade -y --allowerasing  --best
 
   for pkg in $(cat error.txt | awk -F"from package" '{print $2 }' | uniq)
   do

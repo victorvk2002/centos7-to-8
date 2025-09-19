@@ -1,4 +1,4 @@
-# centos7-to-8
+# Обновление centos7 на centos8
 
 Локаль лучше поправить из оболочки юзера
 ```
@@ -14,11 +14,13 @@ source /etc/profile
 locale
 ```
 
-Запуск
-```
-curl https://raw.githubusercontent.com/victorvk2002/centos7-to-8/refs/heads/main/centos7-to-8.sh | sudo bash
-```
+## Запуск
 
 ```
-curl https://raw.githubusercontent.com/victorvk2002/centos7-to-8/refs/heads/main/centos7-to-8.sh -o centos7-to-8.sh
+bash centos7-up-to-last.sh
+
+reboot
+
+# проверяем что загрузились с последнего ядра
 ```
+
