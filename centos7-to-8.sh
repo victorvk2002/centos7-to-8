@@ -1,10 +1,8 @@
 #!/bin/bash
 
-stage 'STAGE 1'
-
 if [ ! -f "STAGE1_DONE.flag" ]
 then
-  stage 'Локаль'
+  msg 'Локаль'
   export LANG=en_US.UTF-8
   export LC_ALL=en_US.UTF-8
   export PYTHONIOENCODING=UTF-8
@@ -16,7 +14,7 @@ then
   source /etc/profile
   locale
 
-  stage 'замена резозитариев'
+  msg 'замена резозитариев'
   sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
   sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
   sed -i s/^mirrorlist=http/#mirrorlist=https/g /etc/yum.repos.d/*.repo
@@ -25,16 +23,16 @@ then
 
   echo "sslverify=false" >> /etc/yum.conf
 
-  stage 'обновление пакетов'
+  msg 'обновление пакетов'
   yum upgrade -y
   
-  stage 'установка epel через метапакет'
+  msg 'установка epel через метапакет'
   yum install -y epel-release
 
-  stage 'установка дополнительных пакетов'
+  msg 'установка дополнительных пакетов'
   yum install -y yum-utils rpmconf mc nano
 
-  stage 'очистка старых пакетов'
+  msg 'очистка старых пакетов'
   rpmconf -a
 
   for pkg in $(package-cleanup --leaves -q)
@@ -47,6 +45,7 @@ then
     yum remove -y $pkg
   done
 
+  msg 'замена yam на dnf'
   yum install -y dnf
   dnf -y remove yum yum-metadata-parser
   rm -Rf /etc/yum
@@ -57,8 +56,6 @@ then
 
   touch STAGE1_DONE.flag
 fi
-
-stage 'STAGE 2'
 
 if [ ! -f "STAGE2_DONE.flag" ]
 then
@@ -111,6 +108,8 @@ EOF
   rpm --rebuilddb
   dnf clean packages
 
+  dnf install -y epel-release
+
   dnf makecache
   dnf upgrade -y
 
@@ -122,6 +121,8 @@ EOF
   dnf -y groupupdate "Core" "Minimal Install"
 
   cat /etc/os-release
+  uname -a
+  ls -lhF /boot
 
   touch STAGE2_DONE.flag
 fi
