@@ -50,7 +50,7 @@ then
   yum install -y epel-release
 
   stage 'установка дополнительных пакетов'
-  yum install -y yum-utils rpmconf mc
+  yum install -y yum-utils rpmconf mc nano
 
   stage 'очистка старых пакетов'
   rpmconf -a
