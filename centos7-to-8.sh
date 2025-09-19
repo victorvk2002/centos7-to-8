@@ -1,23 +1,5 @@
 #!/bin/bash
 
-stage() {
-    local msg="$1"
-    local width=60
-    local border="─"
-
-    # цветовые коды (можно убрать, если не нужно)
-    local COLOR_BLUE="\e[34m"
-    local COLOR_RESET="\e[0m"
-    local COLOR_BOLD="\e[1m"
-
-    # рамка сверху
-    printf "\n${COLOR_BLUE}┌%*s┐${COLOR_RESET}\n" $width | tr ' ' "$border"
-    # текст по центру
-    printf "${COLOR_BLUE}│${COLOR_RESET} ${COLOR_BOLD}%-*s${COLOR_RESET}${COLOR_BLUE}│${COLOR_RESET}\n" $((width-2)) "$msg"
-    # рамка снизу
-    printf "${COLOR_BLUE}└%*s┘${COLOR_RESET}\n\n" $width | tr ' ' "$border"
-}
-
 stage 'STAGE 1'
 
 if [ ! -f "STAGE1_DONE.flag" ]
@@ -69,11 +51,6 @@ then
   dnf -y remove yum yum-metadata-parser
   rm -Rf /etc/yum
   dnf upgrade -y
-  dnf install -y NetworkManager
-
-  systemctl enable NetworkManager
-  systemctl start NetworkManager
-  systemctl status NetworkManager
 
   cat /etc/os-release
   uname -a
@@ -85,12 +62,15 @@ stage 'STAGE 2'
 
 if [ ! -f "STAGE2_DONE.flag" ]
 then
-  dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-release-8.5-1.2111.el8.noarch.rpm
-  dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-3.el8.noarch.rpm
-  dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-repos-8-3.el8.noarch.rpm
-  # epel
-  dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-  dnf -y upgrade https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-release-8.5-1.2111.el8.noarch.rpm
+  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-3.el8.noarch.rpm
+  # dnf install -y https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-repos-8-3.el8.noarch.rpm
+  # # epel
+  # dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+  # dnf -y upgrade https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+  rm -rf /etc/yum.repos.d/CentOS*
+  rm -rf /etc/yum.repos.d/epel*
 
   # Repo
   cat > /etc/yum.repos.d/centos-vault.repo << 'EOF'
@@ -115,18 +95,27 @@ EOF
 
   dnf clean all
   rm -rf /var/cache/dnf/*
-  rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
-
-  dnf clean all
   dnf makecache
-  dnf update --best --allowerasing
+  dnf update -y --best --allowerasing
   dnf repolist
+  dnf upgrade -y 1>>error.log 2>>error.log
 
+  for pkg in $(cat error.txt | awk -F"from package" '{print $2 }' | uniq)
+  do
+    rpm -e --nodeps $pkg
+  done
+
+  rm -f /var/lib/rpm/__db*
+  rpm --rebuilddb
+  dnf distro-sync -y --allowerasing
+  rpm --rebuilddb
+  dnf clean packages
+
+  dnf makecache
   dnf upgrade -y
 
-
-  rpm -e `rpm -q kernel`
-  rpm -e --nodeps sysvinit-tools
+  # rpm -e `rpm -q kernel`
+  # rpm -e --nodeps sysvinit-tools
 
   dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
   dnf -y install kernel-core
@@ -136,3 +125,42 @@ EOF
 
   touch STAGE2_DONE.flag
 fi
+
+
+# stage <LEVEL> <MESSAGE>
+stage() {
+  RESET=$(tput sgr0)
+  BOLD=$(tput bold)
+
+  COLOR_INFO=$(tput setaf 6)   # cyan
+  COLOR_WARN=$(tput setaf 3)   # yellow
+  COLOR_ERROR=$(tput setaf 1)   # red
+  COLOR_SUCCESS=$(tput setaf 2)   # green
+  COLOR_DEBUG=$(tput setaf 5)   # magenta
+
+  local level=$1
+  shift
+  local msg="$*"
+
+  # Выбираем цвет по уровню
+  local color=$COLOR_INFO  # по умолчанию
+  case "$level" in
+    info|i)    color=$COLOR_INFO    ;;
+    warn|w)    color=$COLOR_WARN    ;;
+    error|e)   color=$COLOR_ERROR   ;;
+    success|s) color=$COLOR_SUCCESS ;;
+    debug|d)   color=$COLOR_DEBUG   ;;
+    *)         color=$COLOR_INFO    ;;
+  esac
+
+  local ts=$(date '+%Y-%m-%d %H:%M:%S')
+  local prefix="[${ts}] ${level^^}"
+  line
+  printf "%b%-30s%b %s%b\n" "$color" "$prefix" "$RESET" "$msg" "$RESET"
+  line
+}
+
+# Если нужно «выделить» разделы – можно использовать простую линию:
+line() {
+  printf '%s\n' "$(printf '%0.s-' {1..40})"
+}
