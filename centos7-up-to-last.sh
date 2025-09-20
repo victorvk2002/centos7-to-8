@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source msg.sh
 
 if [ ! -f "STAGE1_DONE.flag" ]
