@@ -47,5 +47,6 @@ then
   uname -a
   ls -lhF /boot
 
+  msg s "centos7 обновлён до последней версии. требуется ребут"
   touch STAGE1_DONE.flag
 fi
