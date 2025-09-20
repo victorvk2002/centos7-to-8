@@ -39,10 +39,3 @@ msg() {
   printf "%b%-30s%b %s%b\n" "$color" "$body" "$color" "$closer" "$RESET"
   printf "%b%-30s%b %s%b\n" "$color" "+$(printf '%0.s-' $(seq $WIDTH))+" "$RESET"
 }
-
-
-msg "Привет!"
-msg w "Привет в обед!"
-msg e "Привет это баба Нюра из Мексики!"
-msg s "Привет!"
-msg d "П!"
