@@ -17,10 +17,17 @@ locale
 ## Запуск
 
 ```
-bash centos7-up-to-last.sh
+sudo bash centos7-up-to-last.sh
 
 reboot
+# проверяем что загрузились с последнего ядра (3.10.0-1160.119.1.el7.x86_64)
 
-# проверяем что загрузились с последнего ядра
+sudo bash centos7-to-8.sh
+
+reboot
+# проверяем что загрузились с последнего ядра (4.18.0-348.7.1.el8_5.x86_64)
+
+sudo bash centos8-up-to-last.sh
+
 ```
 

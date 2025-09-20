@@ -20,7 +20,7 @@ then
   yum install -y epel-release
 
   msg 'centos7: установка дополнительных пакетов'
-  yum install -y yum-utils rpmconf mc nano
+  yum install -y yum-utils rpmconf mc nano wget
 
   msg 'centos7: очистка старых пакетов'
   rpmconf -a
