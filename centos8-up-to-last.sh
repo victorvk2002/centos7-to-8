@@ -8,7 +8,7 @@ if [ ! -f "STAGE3_DONE.flag" ]
 then
   msg "centos8: удалить старые ядра"
   dnf remove -y --oldinstallonly --setopt installonly_limit=1
-  rpm -qa | grep kernel
+  rpm -qa | grep --color kernel
 
   msg "centos8: подтягиваем версии пакетов к ядру"
   dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
@@ -27,6 +27,6 @@ then
   systemctl start NetworkManager
   systemctl status NetworkManager
 
-  msg "centos8: очистка завершена"
+  msg s "centos8: очистка завершена"
   touch STAGE3_DONE.flag
 fi
