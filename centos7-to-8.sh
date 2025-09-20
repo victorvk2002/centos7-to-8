@@ -26,19 +26,19 @@ then
   # появится ошибка Symvers dump file /boot/symvers-4.18.0-348.7.1.el8_5.x86_64.gz not found
   cp /lib/modules/4.18.0-348.7.1.el8_5.x86_64/symvers.gz /boot/symvers-4.18.0-348.7.1.el8_5.x86_64.gz
   dnf reinstall -y http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-core-4.18.0-348.7.1.el8_5.x86_64.rpm
-  ls -lhF /boot | grep "4.18.0-348.7.1.el8_5.x86_64"
+  ls -lhF /boot | grep --color "4.18.0-348.7.1.el8_5.x86_64"
 
   msg "centos7: подключение epel-8"
   dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
   msg "centos7: обновление grub"
-  rpm -qa | grep kernel
+  rpm -qa | grep --color kernel
   dracut --kver 4.18.0-348.7.1.el8_5.x86_64 --force
   grub2-mkconfig -o /boot/grub2/grub.cfg
 
   cat /etc/os-release
   uname -a
   
-  msg "centos7: требуется перезагрузка"
+  msg s "centos7: сборка ядра centos8 завершена. требуется перезагрузка"
   touch STAGE2_DONE.flag
 fi
