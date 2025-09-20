@@ -20,7 +20,7 @@ then
   wget http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-modules-4.18.0-348.7.1.el8_5.x86_64.rpm
   wget http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-tools-libs-4.18.0-348.7.1.el8_5.x86_64.rpm
   
-  dnf install -y --allowerasing linux-firmware-20210702-103.gitd79c2677.el8.noarch.rpm kernel-core-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-modules-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-tools-libs-4.18.0-348.7.1.el8_5.x86_64.rpm
+  dnf install -y --allowerasing linux-firmware-20210702-103.gitd79c2677.el8.noarch.rpm kernel-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-core-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-modules-4.18.0-348.7.1.el8_5.x86_64.rpm kernel-tools-libs-4.18.0-348.7.1.el8_5.x86_64.rpm
 
   msg "centos7: фикс ошибки сборки ядра centos8"
   # появится ошибка Symvers dump file /boot/symvers-4.18.0-348.7.1.el8_5.x86_64.gz not found
