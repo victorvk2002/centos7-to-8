@@ -14,6 +14,18 @@ source /etc/profile
 locale
 ```
 
+Подготовка
+```
+curl -O https://vault.centos.org/centos/7/os/x86_64/Packages/wget-1.14-18.el7_6.1.x86_64.rpm
+rpm -i wget-1.14-18.el7_6.1.x86_64.rpm
+curl -O https://vault.centos.org/centos/7/os/x86_64/Packages/unzip-6.0-21.el7.x86_64.rpm
+rpm -i unzip-6.0-21.el7.x86_64.rpm
+
+wget https://github.com/victorvk2002/centos7-to-8/archive/refs/heads/main.zip
+unzip main.zip
+cd centos7-to-8-main
+```
+
 ## Запуск
 
 1. Меняем на правильные репозитарии и обновляем centos7 до последней версии
