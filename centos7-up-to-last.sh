@@ -27,16 +27,16 @@ then
   msg 'centos7: очистка старых пакетов'
   rpmconf -a
 
-  for pkg in $(package-cleanup --leaves -q)
-  do
-    yum remove -y $pkg
-  done
+  package-cleanup --orphans
 
-  for pkg in $(package-cleanup --orphans -q)
-  do
-    yum remove -y $pkg
-  done
+  # возможно это ломет дальнейший переход
+  # for pkg in $(package-cleanup --leaves -q)
+  # do
+  #   yum remove -y $pkg
+  # done
 
+  yum autoremove
+  
   msg 'centos7: замена yam на dnf'
   yum install -y dnf
   dnf -y remove yum yum-metadata-parser
