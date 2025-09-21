@@ -27,6 +27,6 @@ then
   systemctl start NetworkManager
   systemctl status NetworkManager
 
-  msg s "centos8: очистка завершена. неплохо будет перезагрузиться и убедиться что всё ок."
+  msg s "centos8: очистка завершена. неплохо будет перезагрузиться и убедиться что всё точно ок."
   touch STAGE3_DONE.flag
 fi
