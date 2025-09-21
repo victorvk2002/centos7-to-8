@@ -42,6 +42,9 @@ EOF
   dnf makecache
   dnf update -y
   dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
+
+  msg "centos7: подключение epel-8"
+  dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
   
   msg "centos7: установка ядра centos8"
   wget http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/linux-firmware-20210702-103.gitd79c2677.el8.noarch.rpm
@@ -63,9 +66,6 @@ EOF
   cp /lib/modules/4.18.0-348.7.1.el8_5.x86_64/symvers.gz /boot/symvers-4.18.0-348.7.1.el8_5.x86_64.gz
   dnf reinstall -y http://vault.centos.org/8.5.2111/BaseOS/x86_64/os/Packages/kernel-core-4.18.0-348.7.1.el8_5.x86_64.rpm
   ls -lhF /boot | grep --color "4.18.0-348.7.1.el8_5.x86_64"
-
-  msg "centos7: подключение epel-8"
-  dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
   msg "centos7: обновление grub"
   rpm -qa | grep --color kernel
