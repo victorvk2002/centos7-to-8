@@ -10,22 +10,25 @@ then
   dnf remove -y --oldinstallonly --setopt installonly_limit=1
   rpm -qa | grep --color kernel
 
-  msg "centos8: подтягиваем версии пакетов к ядру"
-  dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
-  # будут ошибки зависимостей
-  rpm -Va --nofiles --nodigest
-  rpm --rebuilddb
-  dnf clean all
-  dnf makecache
-  rpm -e dracut-network --nodeps
-  dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
-  dnf remove -y sysvinit-tools-2.88-14.dsf.el7.x86_64 python36-rpmconf-1.1.7-1.el7.1.noarch
+  msg "контрольный"
   dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
 
-  dnf install -y NetworkManager
-  systemctl enable NetworkManager
-  systemctl start NetworkManager
-  systemctl status NetworkManager
+  msg "подчищаем ненужное"
+  dnf -y autoremove
+  # # будут ошибки зависимостей
+  # rpm -Va --nofiles --nodigest
+  # rpm --rebuilddb
+  # dnf clean all
+  # dnf makecache
+  # rpm -e dracut-network --nodeps
+  # dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
+  # dnf remove -y sysvinit-tools-2.88-14.dsf.el7.x86_64 python36-rpmconf-1.1.7-1.el7.1.noarch
+  # dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
+
+  # dnf install -y NetworkManager
+  # systemctl enable NetworkManager
+  # systemctl start NetworkManager
+  # systemctl status NetworkManager
 
   msg s "centos8: очистка завершена. неплохо будет перезагрузиться и убедиться что всё точно ок."
   touch STAGE3_DONE.flag
