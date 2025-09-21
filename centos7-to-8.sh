@@ -30,7 +30,7 @@ then
   dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch
 
   msg "distro-sync"
-  dnf --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
+  dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
 
   msg "ставим ядро"
   dnf -y install kernel-core
