@@ -14,7 +14,7 @@ source /etc/profile
 locale
 ```
 
-Подготовка
+## Подготовка
 ```
 curl -O https://vault.centos.org/centos/7/os/x86_64/Packages/wget-1.14-18.el7_6.1.x86_64.rpm
 rpm -i wget-1.14-18.el7_6.1.x86_64.rpm
