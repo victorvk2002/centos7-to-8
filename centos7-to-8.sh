@@ -23,7 +23,7 @@ then
   sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
   msg "чистим мусор"
-  rpm -e --nodeps sysvinit-tools
+  rpm -e --nodeps sysvinit-tools || true
   rpm -e `rpm -q kernel`
   
   dnf -y remove dracut-network || true
