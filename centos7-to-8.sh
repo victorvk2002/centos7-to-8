@@ -26,8 +26,8 @@ then
   rpm -e --nodeps sysvinit-tools
   rpm -e `rpm -q kernel`
   
-  dnf -y remove dracut-network
-  dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch
+  dnf -y remove dracut-network || true
+  dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch || true
 
   msg "distro-sync"
   dnf --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
