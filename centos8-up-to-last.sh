@@ -9,6 +9,6 @@ then
   msg "подчищаем ненужное"
   dnf -y autoremove
 
-  msg s "centos8: очистка завершена. неплохо будет перезагрузиться и убедиться что всё точно ок."
+  msg s "centos8: очистка завершена."
   touch STAGE3_DONE.flag
 fi
