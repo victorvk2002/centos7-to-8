@@ -23,7 +23,6 @@ rpm -i unzip-6.0-21.el7.x86_64.rpm
 
 wget https://github.com/victorvk2002/centos7-to-8/archive/refs/heads/main.zip
 unzip -j main.zip
-cd centos7-to-8-main
 ```
 
 ## Запуск
