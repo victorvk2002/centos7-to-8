@@ -14,7 +14,7 @@ then
   dnf install -y centos-linux-release-8.5-1.2111.el8.noarch.rpm centos-gpg-keys-8-3.el8.noarch.rpm centos-linux-repos-8-3.el8.noarch.rpm
   dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
-  msg "cснова поправляем съехавшие репозитарии"
+  msg "снова поправляем съехавшие репозитарии"
   grep --color -r "mirror" /etc/yum.repos.d/
   sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
   sed -i s/^#.*baseurl=http/baseurl=https/g /etc/yum.repos.d/*.repo
