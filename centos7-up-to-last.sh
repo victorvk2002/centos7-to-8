@@ -37,12 +37,6 @@ then
 
   yum autoremove
   
-  msg 'centos7: замена yam на dnf'
-  yum install -y dnf
-  dnf -y remove yum yum-metadata-parser
-  rm -Rf /etc/yum
-  dnf upgrade -y
-
   cat /etc/os-release
   uname -a
   ls -lhF /boot

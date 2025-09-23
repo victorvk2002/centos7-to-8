@@ -42,6 +42,10 @@ then
   dnf -y install kernel-core
   dnf -y groupupdate "Core" "Minimal Install"
 
+  cat /etc/os-release
+  uname -a
+  ls -lhF /boot
+
   msg s "сборка ядра centos8 завершена. требуется перезагрузка"
   touch STAGE2_DONE.flag
 fi
