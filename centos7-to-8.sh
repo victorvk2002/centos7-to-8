@@ -10,9 +10,8 @@ then
   wget https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-release-8.5-1.2111.el8.noarch.rpm
   wget https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-gpg-keys-8-3.el8.noarch.rpm
   wget https://vault.centos.org/centos/8/BaseOS/x86_64/os/Packages/centos-linux-repos-8-3.el8.noarch.rpm
-  
-  dnf install -y centos-linux-release-8.5-1.2111.el8.noarch.rpm centos-gpg-keys-8-3.el8.noarch.rpm centos-linux-repos-8-3.el8.noarch.rpm
-  dnf upgrade -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+  yum install -y centos-linux-release-8.5-1.2111.el8.noarch.rpm centos-gpg-keys-8-3.el8.noarch.rpm centos-linux-repos-8-3.el8.noarch.rpm
 
   msg "снова поправляем съехавшие репозитарии"
   grep --color -r "mirror" /etc/yum.repos.d/
@@ -25,7 +24,14 @@ then
   msg "чистим мусор"
   rpm -e --nodeps sysvinit-tools
   rpm -e `rpm -q kernel`
-  
+
+  yum install -y dnf
+  dnf -y remove yum yum-metadata-parser
+  rm -Rf /etc/yum
+  dnf upgrade -y
+
+  dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
   dnf -y remove dracut-network
   dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch
 
@@ -35,7 +41,7 @@ then
   msg "ставим ядро"
   dnf -y install kernel-core
   dnf -y groupupdate "Core" "Minimal Install"
-  
+
   msg s "сборка ядра centos8 завершена. требуется перезагрузка"
   touch STAGE2_DONE.flag
 fi
