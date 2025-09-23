@@ -12,6 +12,7 @@ echo 'export LANG=en_US.UTF-8' >> /etc/profile
 echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile
 source /etc/profile
 locale
+
 ```
 
 ## Подготовка
@@ -23,6 +24,7 @@ rpm -i unzip-6.0-21.el7.x86_64.rpm
 
 wget https://github.com/victorvk2002/centos7-to-8/archive/refs/tags/1.0.zip
 unzip -j 1.0.zip
+
 ```
 
 ## Запуск
