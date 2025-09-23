@@ -22,8 +22,8 @@ rpm -i wget-1.14-18.el7_6.1.x86_64.rpm
 curl -O https://vault.centos.org/centos/7/os/x86_64/Packages/unzip-6.0-21.el7.x86_64.rpm
 rpm -i unzip-6.0-21.el7.x86_64.rpm
 
-wget https://github.com/victorvk2002/centos7-to-8/archive/refs/tags/1.0.zip
-unzip -j 1.0.zip
+https://github.com/victorvk2002/centos7-to-8/archive/refs/heads/main.zip
+unzip -j main.zip
 
 ```
 
