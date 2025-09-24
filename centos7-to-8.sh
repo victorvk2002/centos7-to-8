@@ -25,7 +25,7 @@ then
   msg "чистим мусор"
   rpm -e --nodeps sysvinit-tools
 
-  msg "со следующего шага у нас временно не будет загрузочного ядра. оспасно!"
+  msg w "со следующего шага у нас временно не будет загрузочного ядра. не перезагружать!"
   rpm -e $(rpm -q kernel | grep "el7")
   
   dnf -y remove dracut-network
