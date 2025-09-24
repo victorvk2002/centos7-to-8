@@ -25,8 +25,17 @@ then
   msg "чистим мусор"
   rpm -e --nodeps sysvinit-tools
 
-  msg w "со следующего шага у нас временно не будет загрузочного ядра. не перезагружать!"
+  msg "ставим ядро 4.18"
+  dnf -y install kernel-core --allowerasing || true
+  msg w "без паники, это известная ошибка, сейчас исправим"
+  cp /lib/modules/4.18.0-348.7.1.el8_5.x86_64/symvers.gz /boot/symvers-4.18.0-348.7.1.el8_5.x86_64.gz
+  dnf -y reinstall kernel-core
+
+  msg "удаляем старые ядра"
   rpm -e $(rpm -q kernel | grep "el7")
+
+  msg "исправляем загрузчик"
+  grub2-mkconfig -o /boot/grub2/grub.cfg
   
   dnf -y remove dracut-network
   dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch
@@ -34,11 +43,8 @@ then
   msg "distro-sync"
   dnf -y --releasever=8 --allowerasing --setopt=deltarpm=false distro-sync
 
-  msg "ставим ядро"
-  dnf -y install kernel-core
+  msg "ставим мир"
   dnf -y groupupdate "Core" "Minimal Install"
-
-  grub2-mkconfig -o /boot/grub2/grub.cfg
   
   msg s "сборка ядра centos8 завершена. требуется перезагрузка"
   touch STAGE2_DONE.flag
