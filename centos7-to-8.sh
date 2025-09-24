@@ -24,7 +24,7 @@ then
 
   msg "чистим мусор"
   rpm -e --nodeps sysvinit-tools
-  rpm -e kernel-3.10.0-1160.80.1.el7 kernel-3.10.0-1160.119.1.el7
+  rpm -e $(rpm -q kernel | grep "el7")
   
   dnf -y remove dracut-network
   dnf -y remove python36-rpmconf-1.1.7-1.el7.1.noarch
