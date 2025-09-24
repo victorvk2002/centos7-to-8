@@ -22,7 +22,8 @@ then
   sed -i 's|^mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/*.repo
   sed -i 's|^#baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g' /etc/yum.repos.d/*.repo
   sed -i 's|^baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g' /etc/yum.repos.d/*.repo
-
+  grep --color -vE "^#|^$" /etc/yum.repos.d/*.repo
+  
   msg "Чистим пакеты CentOS7"
   dnf -y remove sysvinit-tools || true
   dnf -y remove dracut-network || true
