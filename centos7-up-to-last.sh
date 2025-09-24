@@ -17,7 +17,7 @@ then
 
   msg ' centos7: обновление пакетов'
   yum upgrade -y
-  
+
   msg 'centos7: установка epel через метапакет'
   yum install -y epel-release
 
@@ -29,14 +29,14 @@ then
 
   package-cleanup --orphans
 
-  # возможно это ломет дальнейший переход
-  # for pkg in $(package-cleanup --leaves -q)
-  # do
-  #   yum remove -y $pkg
-  # done
-
   yum autoremove
-  
+
+  msg 'centos7: замена yam на dnf'
+  yum install -y dnf
+  dnf -y remove yum yum-metadata-parser
+  rm -Rf /etc/yum
+  dnf upgrade -y
+
   cat /etc/os-release
   uname -a
   ls -lhF /boot
