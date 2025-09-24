@@ -35,6 +35,8 @@ then
   msg "ставим ядро"
   dnf -y install kernel-core
   dnf -y groupupdate "Core" "Minimal Install"
+
+  grub2-mkconfig -o /boot/grub2/grub.cfg
   
   msg s "сборка ядра centos8 завершена. требуется перезагрузка"
   touch STAGE2_DONE.flag
